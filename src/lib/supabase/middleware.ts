@@ -3,17 +3,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+import { isOperator } from '@/lib/auth/operator'
+
 const PUBLIC_PATHS = ['/login', '/auth/callback']
 const STATIC_PATTERNS = [/^\/_next\//, /^\/favicon/, /^\/fonts\//]
-
-function isAllowlistedEmail(email: string | null | undefined): boolean {
-  if (!email) return false
-  const list = (process.env.OPERATOR_EMAILS ?? '')
-    .split(',')
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean)
-  return list.includes(email.toLowerCase())
-}
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -45,8 +38,8 @@ export async function updateSession(request: NextRequest) {
 
   if (isStatic) return supabaseResponse
 
-  // Already signed in + on /login → redirect home (only if allowlisted)
-  if (path === '/login' && user && isAllowlistedEmail(user.email)) {
+  // Already signed in + on /login → redirect home (only if operator)
+  if (path === '/login' && isOperator(user)) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
@@ -59,7 +52,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (!isAllowlistedEmail(user.email)) {
+  if (!isOperator(user)) {
     // Signed in but not an operator — sign out + show error
     await supabase.auth.signOut()
     const loginUrl = new URL('/login', request.url)

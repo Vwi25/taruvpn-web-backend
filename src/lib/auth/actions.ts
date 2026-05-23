@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
-import { isAllowlistedEmail } from '@/lib/auth/allowlist'
+import { isOperator } from '@/lib/auth/operator'
 import { createClient } from '@/lib/supabase/server'
 
 export async function signInWithPassword(formData: FormData) {
@@ -16,16 +16,16 @@ export async function signInWithPassword(formData: FormData) {
     redirect('/login?error=missing_fields')
   }
 
-  if (!isAllowlistedEmail(email)) {
-    // Fail-fast before even hitting Supabase — protects against credential stuffing on non-operator accounts
-    redirect('/login?error=unauthorized')
-  }
-
   const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
     redirect(`/login?error=${encodeURIComponent(error.message)}`)
+  }
+
+  if (!isOperator(data.user)) {
+    await supabase.auth.signOut()
+    redirect('/login?error=unauthorized')
   }
 
   revalidatePath('/', 'layout')

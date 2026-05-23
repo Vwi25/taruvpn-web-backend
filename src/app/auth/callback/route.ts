@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server'
 
-import { isAllowlistedEmail } from '@/lib/auth/allowlist'
+import { isOperator } from '@/lib/auth/operator'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
@@ -21,9 +21,9 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`)
   }
 
-  // OAuth bypasses the form-level allowlist check — enforce it here.
+  // OAuth bypasses the form-level operator check — enforce it here.
   // Otherwise any Google user could sign in once the provider is enabled.
-  if (!isAllowlistedEmail(data.user?.email)) {
+  if (!isOperator(data.user)) {
     await supabase.auth.signOut()
     return NextResponse.redirect(`${origin}/login?error=unauthorized`)
   }
