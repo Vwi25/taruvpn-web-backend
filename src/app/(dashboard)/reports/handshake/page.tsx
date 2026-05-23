@@ -19,7 +19,7 @@ interface Row {
 }
 
 export default async function HandshakeReportPage() {
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const since = new Date(Date.now() - 24 * 3600_000).toISOString()
 
   const { data, error } = await supabase

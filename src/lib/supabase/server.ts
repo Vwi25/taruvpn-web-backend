@@ -16,9 +16,11 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
 /**
  * Standard server client — uses authenticated user session via cookies.
  * Respects RLS. Use for customer-facing pages.
+ *
+ * Must be awaited (Next 15+ made cookies() async).
  */
-export function createClient() {
-  const cookieStore = cookies()
+export async function createClient() {
+  const cookieStore = await cookies()
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
@@ -42,8 +44,10 @@ export function createClient() {
  * Use only in server-side code for operator-only operations
  * (e.g. reading internal.* operational tables).
  * NEVER pass this client to browser code.
+ *
+ * Marked async for API consistency with createClient() (Next 15+ migration).
  */
-export function createAdminClient() {
+export async function createAdminClient() {
   if (!SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error('SUPABASE_SERVICE_ROLE_KEY is missing in .env.local')
   }

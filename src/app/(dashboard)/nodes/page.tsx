@@ -19,7 +19,7 @@ interface Node {
 }
 
 export default async function NodesPage() {
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const { data, error } = await supabase
     .schema('internal')
     .from('vpn_nodes')

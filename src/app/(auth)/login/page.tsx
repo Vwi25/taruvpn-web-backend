@@ -15,12 +15,11 @@ const ERROR_MESSAGES: Record<string, string> = {
 }
 
 interface LoginPageProps {
-  searchParams: { next?: string; error?: string }
+  searchParams: Promise<{ next?: string; error?: string }>
 }
 
-export default function LoginPage({ searchParams }: LoginPageProps) {
-  const next = searchParams.next ?? '/'
-  const errorKey = searchParams.error
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { next = '/', error: errorKey } = await searchParams
   const errorMessage = errorKey ? ERROR_MESSAGES[errorKey] ?? decodeURIComponent(errorKey) : null
 
   return (

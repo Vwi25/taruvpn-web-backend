@@ -30,7 +30,7 @@ function ProvenanceMark({ value }: { value: boolean }) {
 }
 
 export default async function CustomersPage() {
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const { data, error } = await supabase
     .schema('internal')
     .from('vpn_customers')

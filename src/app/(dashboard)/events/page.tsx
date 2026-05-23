@@ -24,7 +24,7 @@ interface EventRow {
 }
 
 async function getEvents(): Promise<{ events: EventRow[]; error: string | null }> {
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
 
   const [deviceEvents, lockEvents] = await Promise.all([
     supabase

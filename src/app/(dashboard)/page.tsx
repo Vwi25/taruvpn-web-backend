@@ -26,7 +26,7 @@ interface DashboardData {
 }
 
 async function getDashboardData(): Promise<DashboardData> {
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
 
   const [customers, nodes, sync, events, handshakes] = await Promise.all([
     supabase.schema('internal').from('vpn_customers').select('slug', { count: 'exact', head: true }),

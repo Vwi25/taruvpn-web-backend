@@ -43,7 +43,7 @@ const TIER_META: Record<string, { icon: typeof Flame; label: string; description
 }
 
 export default async function SyncPage() {
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const { data, error } = await supabase
     .schema('internal')
     .from('vpn_sync_status')

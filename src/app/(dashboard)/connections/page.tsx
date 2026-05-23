@@ -32,7 +32,7 @@ interface Connection {
 }
 
 export default async function ConnectionsPage() {
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
 
   const [handshakesRes, connectionsRes] = await Promise.all([
     supabase

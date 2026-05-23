@@ -23,7 +23,7 @@ interface Row {
 }
 
 export default async function ProbesReportPage() {
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const since = new Date(Date.now() - 24 * 3600_000).toISOString()
 
   const { data, error } = await supabase

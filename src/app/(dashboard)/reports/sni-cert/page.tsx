@@ -24,7 +24,7 @@ interface Row {
 }
 
 export default async function SniCertReportPage() {
-  const supabase = createAdminClient()
+  const supabase = await createAdminClient()
   const { data, error } = await supabase
     .schema('internal')
     .from('metrics_sni_cert_history')
