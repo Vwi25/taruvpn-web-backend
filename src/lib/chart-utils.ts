@@ -11,6 +11,7 @@ export function pivotByCategory(
   valueCol: string,
   formatDate: (iso: string) => string = (s) => s,
 ): Array<Record<string, string | number>> {
+  // Map keyed by raw ISO timestamp (ensures uniqueness across days).
   const buckets = new Map<string, Record<string, string | number>>()
   for (const row of rows) {
     const r = row as Record<string, unknown>
@@ -20,7 +21,12 @@ export function pivotByCategory(
     if (!buckets.has(ts)) buckets.set(ts, { date: formatDate(ts) })
     buckets.get(ts)![cat] = val
   }
-  return Array.from(buckets.values()).sort((a, b) => String(a.date).localeCompare(String(b.date)))
+  // CRITICAL: sort by raw ISO timestamp (not display label).
+  // Sorting by "HH:mm" label string alphabetically breaks chronology when window
+  // spans midnight (e.g. yesterday 22:00 → today 02:00 sorts as 02:00, 22:00).
+  // ISO strings sort chronologically (lexicographic == chronological for ISO 8601).
+  const sorted = Array.from(buckets.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+  return sorted.map(([, v]) => v)
 }
 
 /**
