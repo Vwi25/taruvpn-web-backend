@@ -1,18 +1,11 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
+import { isAllowlistedEmail } from '@/lib/auth/allowlist'
 import { createClient } from '@/lib/supabase/server'
-
-function isAllowlistedEmail(email: string | null | undefined): boolean {
-  if (!email) return false
-  const list = (process.env.OPERATOR_EMAILS ?? '')
-    .split(',')
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean)
-  return list.includes(email.toLowerCase())
-}
 
 export async function signInWithPassword(formData: FormData) {
   const email = String(formData.get('email') ?? '').trim()
@@ -37,6 +30,27 @@ export async function signInWithPassword(formData: FormData) {
 
   revalidatePath('/', 'layout')
   redirect(next)
+}
+
+export async function signInWithGoogle(formData: FormData) {
+  const next = String(formData.get('next') ?? '/')
+
+  const hdrs = await headers()
+  const origin = hdrs.get('origin') ?? `https://${hdrs.get('host') ?? 'localhost:3000'}`
+
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
+    },
+  })
+
+  if (error || !data.url) {
+    redirect(`/login?error=${encodeURIComponent(error?.message ?? 'oauth_init_failed')}`)
+  }
+
+  redirect(data.url)
 }
 
 export async function signOut() {

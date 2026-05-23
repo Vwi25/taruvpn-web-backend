@@ -1,8 +1,8 @@
-// OAuth / email-link callback. Currently password flow doesn't use this,
-// but Supabase auth flows (magic link, OAuth) will redirect here.
+// OAuth / email-link callback. Used by Google sign-in.
 
 import { NextResponse } from 'next/server'
 
+import { isAllowlistedEmail } from '@/lib/auth/allowlist'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
@@ -10,13 +10,23 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
 
-  if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
-    }
+  if (!code) {
+    return NextResponse.redirect(`${origin}/login?error=callback_missing_code`)
   }
 
-  return NextResponse.redirect(`${origin}/login?error=callback_failed`)
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+  if (error) {
+    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`)
+  }
+
+  // OAuth bypasses the form-level allowlist check — enforce it here.
+  // Otherwise any Google user could sign in once the provider is enabled.
+  if (!isAllowlistedEmail(data.user?.email)) {
+    await supabase.auth.signOut()
+    return NextResponse.redirect(`${origin}/login?error=unauthorized`)
+  }
+
+  return NextResponse.redirect(`${origin}${next}`)
 }
