@@ -1,4 +1,4 @@
-import { LineChart } from '@tremor/react'
+import { LineChart } from '@/components/charts'
 
 import { PageHeader } from '@/components/page-header'
 import { StatusBadge } from '@/components/status-badge'
@@ -74,8 +74,7 @@ export default async function SniCertReportPage() {
             categories={sniKeys}
             colors={NODE_COLORS.slice(0, sniKeys.length) as unknown as string[]}
             yAxisWidth={56}
-            showAnimation={false}
-            valueFormatter={(v) => `${v.toLocaleString()}B`}
+            format="cert_bytes"
             noDataText="No cert history"
           />
         </CardContent>

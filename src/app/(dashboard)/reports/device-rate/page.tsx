@@ -1,4 +1,4 @@
-import { LineChart } from '@tremor/react'
+import { LineChart } from '@/components/charts'
 
 import { PageHeader } from '@/components/page-header'
 import { Badge } from '@/components/ui/badge'
@@ -76,8 +76,7 @@ export default async function DeviceRateReportPage() {
             categories={customers}
             colors={CUSTOMER_COLORS.slice(0, customers.length) as unknown as string[]}
             yAxisWidth={56}
-            showAnimation={false}
-            valueFormatter={(v) => `${v.toFixed(1)} Mbps`}
+            format="mbps"
             noDataText="No device-rate samples"
           />
         </CardContent>

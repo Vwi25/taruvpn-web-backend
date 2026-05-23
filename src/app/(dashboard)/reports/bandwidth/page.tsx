@@ -1,4 +1,4 @@
-import { AreaChart } from '@tremor/react'
+import { AreaChart } from '@/components/charts'
 
 import { PageHeader } from '@/components/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -80,8 +80,7 @@ export default async function BandwidthReportPage() {
             categories={customers}
             colors={CUSTOMER_COLORS.slice(0, customers.length) as unknown as string[]}
             yAxisWidth={56}
-            showAnimation={false}
-            valueFormatter={(v) => `${v.toFixed(1)} MB`}
+            format="mb"
             stack
             noDataText="No bandwidth data in window"
           />

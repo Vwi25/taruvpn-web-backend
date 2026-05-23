@@ -1,4 +1,4 @@
-import { DonutChart, LineChart } from '@tremor/react'
+import { DonutChart, LineChart } from '@/components/charts'
 
 import { PageHeader } from '@/components/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -72,8 +72,7 @@ export default async function HandshakeReportPage() {
             categories={nodes}
             colors={NODE_COLORS.slice(0, nodes.length) as unknown as string[]}
             yAxisWidth={56}
-            showAnimation={false}
-            valueFormatter={(v) => `${Math.round(v)}ms`}
+            format="ms"
             noDataText="No handshake data"
           />
         </CardContent>
@@ -91,8 +90,7 @@ export default async function HandshakeReportPage() {
               category="value"
               index="name"
               colors={['emerald', 'amber', 'rose', 'gray']}
-              showAnimation={false}
-              valueFormatter={(v) => `${v.toLocaleString()} probes`}
+              format="donut_label"
             />
           </CardContent>
         </Card>
@@ -108,8 +106,7 @@ export default async function HandshakeReportPage() {
               category="value"
               index="name"
               colors={['emerald', 'blue', 'amber', 'rose']}
-              showAnimation={false}
-              valueFormatter={(v) => `${v.toLocaleString()} probes`}
+              format="donut_label"
             />
           </CardContent>
         </Card>

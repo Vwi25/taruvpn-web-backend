@@ -1,4 +1,4 @@
-import { BarChart } from '@tremor/react'
+import { BarChart } from '@/components/charts'
 
 import { PageHeader } from '@/components/page-header'
 import { Badge } from '@/components/ui/badge'
@@ -78,8 +78,7 @@ export default async function ProbesReportPage() {
             categories={nodes}
             colors={NODE_COLORS.slice(0, nodes.length) as unknown as string[]}
             yAxisWidth={56}
-            showAnimation={false}
-            valueFormatter={(v) => v.toString()}
+            format="integer"
             stack
             noDataText="No probe activity"
           />

@@ -1,4 +1,4 @@
-import { LineChart } from '@tremor/react'
+import { LineChart } from '@/components/charts'
 
 import { PageHeader } from '@/components/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -69,8 +69,7 @@ export default async function NodeHealthReportPage() {
               categories={nodes}
               colors={NODE_COLORS.slice(0, nodes.length) as unknown as string[]}
               yAxisWidth={48}
-              showAnimation={false}
-              valueFormatter={(v) => `${v.toFixed(1)}ms`}
+              format="ms"
               noDataText="No data in window"
             />
           </CardContent>
@@ -88,8 +87,7 @@ export default async function NodeHealthReportPage() {
               categories={nodes}
               colors={NODE_COLORS.slice(0, nodes.length) as unknown as string[]}
               yAxisWidth={48}
-              showAnimation={false}
-              valueFormatter={(v) => `${v.toFixed(2)}%`}
+              format="percent"
               noDataText="No retransmits (excellent)"
             />
           </CardContent>
