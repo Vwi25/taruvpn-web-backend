@@ -41,7 +41,7 @@ const OPS_ITEMS = [
   { href: '/customers', label: 'Customers', icon: Users },
   { href: '/nodes', label: 'Nodes', icon: Server },
   { href: '/events', label: 'Events', icon: Activity },
-  { href: '/connections', label: 'Connections', icon: Network },
+  { href: '/connections', label: 'Live sessions', icon: Network },
   { href: '/sync', label: 'Sync status', icon: RefreshCw },
 ] as const
 

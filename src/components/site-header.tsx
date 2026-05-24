@@ -11,9 +11,17 @@ const ROUTE_TITLES: Record<string, string> = {
   '/customers': 'Customers',
   '/nodes': 'Nodes',
   '/events': 'Events',
-  '/connections': 'Connections',
+  '/connections': 'Live sessions',
   '/sync': 'Sync status',
   '/settings': 'Settings',
+  '/reports': 'Reports',
+  '/reports/connections': 'Connections',
+  '/reports/bandwidth': 'Bandwidth',
+  '/reports/node-health': 'Node health',
+  '/reports/handshake': 'Handshake',
+  '/reports/probes': 'Probes',
+  '/reports/device-rate': 'Device rate',
+  '/reports/sni-cert': 'SNI cert',
 }
 
 function getTitle(pathname: string): string {

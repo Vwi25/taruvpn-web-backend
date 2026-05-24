@@ -54,7 +54,7 @@ export default async function ConnectionsPage() {
   return (
     <>
       <PageHeader
-        title="Connections"
+        title="Live sessions"
         description="Live snapshot of WG handshakes and Reality TCP sockets — populated by Phase C hot tier (every 30s)."
       />
 
