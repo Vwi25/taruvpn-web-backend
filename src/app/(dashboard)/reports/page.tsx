@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import {
+  Activity,
   BarChart3,
   Cable,
   Gauge,
@@ -13,6 +14,12 @@ import { PageHeader } from '@/components/page-header'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const REPORTS = [
+  {
+    href: '/reports/nodes-live',
+    title: 'Nodes (live)',
+    description: 'Real-time per-node snapshot via WG mesh aggregator (30s polling). CPU/RAM/services/xray/firewall.',
+    icon: Activity,
+  },
   {
     href: '/reports/connections',
     title: 'Connections',
