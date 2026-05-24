@@ -3,11 +3,11 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { Power, PowerOff, Trash2 } from 'lucide-react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { TypeToConfirmDialog } from '@/components/operations/type-to-confirm-dialog'
-import type { OperationKind } from '@/lib/operations/registry'
+import { enqueueAndTrack } from '@/lib/operations/client-runner'
+import { REGISTRY, type OperationKind } from '@/lib/operations/registry'
 
 export function DeviceActions({
   customer,
@@ -23,20 +23,12 @@ export function DeviceActions({
     null | { kind: OperationKind; label: string }
   >(null)
 
-  const enqueue = async (kind: OperationKind) => {
-    const res = await fetch('/api/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kind, args: { customer, device } }),
+  const enqueue = (kind: OperationKind) =>
+    enqueueAndTrack(kind, { customer, device }, {
+      router,
+      label: REGISTRY[kind].label,
+      description: `${customer}/${device}`,
     })
-    if (!res.ok) {
-      toast.error(`Failed: ${await res.text()}`)
-      return
-    }
-    const { id } = (await res.json()) as { id: string }
-    toast.success('Job queued', { description: `${kind} → ${customer}/${device}` })
-    router.push(`/operations/history/${id}`)
-  }
 
   const enqueueDirect = (kind: OperationKind) => () => void enqueue(kind)
 
@@ -93,7 +85,9 @@ export function DeviceActions({
           }
           confirmText={device}
           confirmLabel={confirmAction.label}
-          onConfirm={() => enqueue(confirmAction.kind)}
+          onConfirm={async () => {
+            await enqueue(confirmAction.kind)
+          }}
         />
       )}
     </>

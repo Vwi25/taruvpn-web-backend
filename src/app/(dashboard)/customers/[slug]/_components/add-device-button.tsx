@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { Plus } from 'lucide-react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,6 +16,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { enqueueAndTrack } from '@/lib/operations/client-runner'
+import { REGISTRY } from '@/lib/operations/registry'
 
 export function AddDeviceButton({ customer }: { customer: string }) {
   const router = useRouter()
@@ -36,22 +37,17 @@ export function AddDeviceButton({ customer }: { customer: string }) {
   const handleSubmit = async () => {
     if (!valid || submitting) return
     setSubmitting(true)
-    const res = await fetch('/api/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        kind: 'device_add',
-        args: deviceName ? { customer, device: deviceName } : { customer },
-      }),
-    })
-    if (!res.ok) {
-      toast.error(`Failed: ${await res.text()}`)
-      setSubmitting(false)
-      return
-    }
-    const { id } = (await res.json()) as { id: string }
     setOpen(false)
-    router.push(`/operations/history/${id}`)
+    await enqueueAndTrack(
+      'device_add',
+      deviceName ? { customer, device: deviceName } : { customer },
+      {
+        router,
+        label: REGISTRY.device_add.label,
+        description: deviceName || `${customer} (auto-named)`,
+      },
+    )
+    setSubmitting(false)
   }
 
   return (

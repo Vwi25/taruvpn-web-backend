@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { MoreHorizontal, RefreshCw, Trash2 } from 'lucide-react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -13,7 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { TypeToConfirmDialog } from '@/components/operations/type-to-confirm-dialog'
-import type { OperationKind } from '@/lib/operations/registry'
+import { enqueueAndTrack } from '@/lib/operations/client-runner'
+import { REGISTRY, type OperationKind } from '@/lib/operations/registry'
 
 interface Props {
   slug: string
@@ -42,21 +42,12 @@ export function CustomerRowActions({ slug, customerType }: Props) {
     return <span className="text-xs text-muted-foreground">—</span>
   }
 
-  const enqueue = async (kind: OperationKind) => {
-    const res = await fetch('/api/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kind, args: { name: slug } }),
+  const fire = (kind: OperationKind) =>
+    enqueueAndTrack(kind, { name: slug }, {
+      router,
+      label: REGISTRY[kind].label,
+      description: slug,
     })
-    if (!res.ok) {
-      const detail = await res.text()
-      toast.error(`Failed to enqueue: ${detail}`)
-      return
-    }
-    const { id } = (await res.json()) as { id: string }
-    toast.success(`Job queued`, { description: `${kind} → ${slug}` })
-    router.push(`/operations/history/${id}`)
-  }
 
   return (
     <>
@@ -70,7 +61,7 @@ export function CustomerRowActions({ slug, customerType }: Props) {
         />
         <DropdownMenuContent align="end">
           {regenerate && (
-            <DropdownMenuItem onClick={() => enqueue(regenerate)}>
+            <DropdownMenuItem onClick={() => void fire(regenerate)}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Regenerate
             </DropdownMenuItem>
@@ -95,7 +86,9 @@ export function CustomerRowActions({ slug, customerType }: Props) {
           description="Wipes YAML, removes from all xray + WG nodes. Devices are removed too. Cannot be undone."
           confirmText={slug}
           confirmLabel="Remove customer"
-          onConfirm={() => enqueue(remove)}
+          onConfirm={async () => {
+            await fire(remove)
+          }}
         />
       )}
     </>

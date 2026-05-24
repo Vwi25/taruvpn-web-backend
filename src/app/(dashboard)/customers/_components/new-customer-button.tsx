@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { Plus } from 'lucide-react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,7 +16,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import type { OperationKind } from '@/lib/operations/registry'
+import { enqueueAndTrack } from '@/lib/operations/client-runner'
+import { REGISTRY, type OperationKind } from '@/lib/operations/registry'
 
 const FLAVORS: Array<{ value: 'cn' | 'wg' | 'dual'; label: string; description: string; kind: OperationKind }> = [
   {
@@ -61,21 +61,13 @@ export function NewCustomerButton() {
     if (!slugValid || submitting) return
     setSubmitting(true)
     const kind = FLAVORS.find((f) => f.value === flavor)!.kind
-    const res = await fetch('/api/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kind, args: { name } }),
-    })
-    if (!res.ok) {
-      const detail = await res.text()
-      toast.error(`Failed: ${detail}`)
-      setSubmitting(false)
-      return
-    }
-    const { id } = (await res.json()) as { id: string }
-    toast.success('Customer provisioning started', { description: name })
     setOpen(false)
-    router.push(`/operations/history/${id}`)
+    await enqueueAndTrack(kind, { name }, {
+      router,
+      label: REGISTRY[kind].label,
+      description: name,
+    })
+    setSubmitting(false)
   }
 
   return (
