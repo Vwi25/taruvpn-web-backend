@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Check, Minus } from 'lucide-react'
 
 import { PageHeader } from '@/components/page-header'
@@ -6,6 +7,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { createAdminClient } from '@/lib/supabase/server'
 import { formatRelative } from '@/lib/format'
+
+import { CustomerRowActions } from './_components/customer-row-actions'
+import { NewCustomerButton } from './_components/new-customer-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,10 +45,15 @@ export default async function CustomersPage() {
 
   return (
     <>
-      <PageHeader
-        title="Customers"
-        description={`${customers.length} customer${customers.length === 1 ? '' : 's'} across all provisioning sources (SQLite / YAML / WG CSV / dual CSV).`}
-      />
+      <div className="flex items-start justify-between gap-4">
+        <PageHeader
+          title="Customers"
+          description={`${customers.length} customer${customers.length === 1 ? '' : 's'} across all provisioning sources (SQLite / YAML / WG CSV / dual CSV).`}
+        />
+        <div className="pt-1">
+          <NewCustomerButton />
+        </div>
+      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -59,12 +68,20 @@ export default async function CustomersPage() {
                 <TableHead className="text-center">WG CSV</TableHead>
                 <TableHead className="text-center">Dual CSV</TableHead>
                 <TableHead>Created</TableHead>
+                <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {customers.map((c) => (
                 <TableRow key={c.slug}>
-                  <TableCell className="font-mono text-sm font-medium">{c.slug}</TableCell>
+                  <TableCell className="font-mono text-sm font-medium">
+                    <Link
+                      href={`/customers/${c.slug}`}
+                      className="hover:underline underline-offset-2"
+                    >
+                      {c.slug}
+                    </Link>
+                  </TableCell>
                   <TableCell>
                     <StatusBadge status={c.customer_type} />
                   </TableCell>
@@ -77,6 +94,9 @@ export default async function CustomersPage() {
                   <TableCell><ProvenanceMark value={c.in_dual_csv} /></TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {c.created_at ? formatRelative(c.created_at) : '—'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <CustomerRowActions slug={c.slug} customerType={c.customer_type} />
                   </TableCell>
                 </TableRow>
               ))}

@@ -8,6 +8,7 @@ import {
   BarChart3,
   Cable,
   Gauge,
+  History,
   LayoutDashboard,
   LineChart,
   LogOut,
@@ -43,6 +44,7 @@ const OPS_ITEMS = [
   { href: '/events', label: 'Events', icon: Activity },
   { href: '/connections', label: 'Live sessions', icon: Network },
   { href: '/sync', label: 'Sync status', icon: RefreshCw },
+  { href: '/operations/history', label: 'Job history', icon: History },
 ] as const
 
 const REPORT_ITEMS = [

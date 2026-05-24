@@ -22,12 +22,18 @@ const ROUTE_TITLES: Record<string, string> = {
   '/reports/probes': 'Probes',
   '/reports/device-rate': 'Device rate',
   '/reports/sni-cert': 'SNI cert',
+  '/operations/history': 'Job history',
 }
 
 function getTitle(pathname: string): string {
-  if (ROUTE_TITLES[pathname]) return ROUTE_TITLES[pathname]
-  const segment = pathname.split('/')[1]
-  return ROUTE_TITLES[`/${segment}`] ?? 'Dashboard'
+  // Progressive prefix match: full path → drop last segment → ... → first segment.
+  // Handles nested dynamic routes like /operations/history/[id] → "Job history".
+  const segments = pathname.split('/').filter(Boolean)
+  for (let n = segments.length; n > 0; n--) {
+    const key = '/' + segments.slice(0, n).join('/')
+    if (ROUTE_TITLES[key]) return ROUTE_TITLES[key]
+  }
+  return ROUTE_TITLES[pathname] ?? 'Dashboard'
 }
 
 export function SiteHeader() {
